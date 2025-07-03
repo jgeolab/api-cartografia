@@ -1,0 +1,99 @@
+swagger: '2.0'
+info:
+  contact: {}
+  description: 'Conjunto de APIs con datos de cartografía, socioeconómicos, y más.'
+  title: API Geoespaciales
+  version: '1.0'
+
+# --- INICIO DE LA MODIFICACIÓN ---
+
+# 1. Se añade el 'host'. Este es un identificador único para tu servicio de API.
+host: api-nahu-app.apigateway.strange-math-449104-v2.cloud.goog
+
+# 2. Se añade el 'schemes', indicando que la API se sirve por HTTPS.
+schemes:
+  - https
+
+# 3. Buenas prácticas: Se especifica que la API consume y produce JSON.
+consumes:
+  - application/json
+produces:
+  - application/json
+
+# --- FIN DE LA MODIFICACIÓN ---
+
+securityDefinitions:
+  api_key_header:
+    in: header
+    name: x-api-key
+    type: apiKey
+
+# Se aplica la seguridad a todos los endpoints.
+security:
+  - api_key_header: []
+
+paths:
+  /colonias/por-coordenadas:
+    get:
+      summary: Busca colonias dentro de un radio a partir de coordenadas.
+      operationId: ColoniasController_getByCoords
+      parameters:
+        - in: query
+          name: lat
+          required: true
+          type: number
+        - in: query
+          name: lng
+          required: true
+          type: number
+        - description: Radio de búsqueda en metros
+          in: query
+          name: radio
+          required: false
+          type: number
+      responses:
+        '200':
+          description: Respuesta exitosa
+      tags:
+        - Catálogos Cartografía
+      x-google-backend:
+        address: 'https://nahu-d3yityfp4a-uc.a.run.app'
+        path_translation: APPEND_PATH_TO_ADDRESS
+
+  /colonias/por-id:
+    get:
+      summary: Obtiene una colonia por sus claves geoestadísticas.
+      operationId: ColoniasController_getByIds
+      parameters:
+        - in: query
+          name: cve_ent
+          required: true
+          type: number
+        - in: query
+          name: cve_mun
+          required: true
+          type: number
+        - in: query
+          name: cve_loc
+          required: true
+          type: number
+      responses:
+        '200':
+          description: Respuesta exitosa
+      tags:
+        - Catálogos Cartografía
+      x-google-backend:
+        address: 'https://nahu-d3yityfp4a-uc.a.run.app'
+        path_translation: APPEND_PATH_TO_ADDRESS
+
+
+tags:
+  - name: Catálogos Cartografía
+    description: "Endpoints relacionados con los catálogos de cartografía."
+  - name: Indicadores Socioeconómicos
+    description: ""
+  - name: Comercio
+    description: ""
+  - name: Vivienda
+    description: ""
+# La sección 'x-components' fue eliminada por ser innecesaria.

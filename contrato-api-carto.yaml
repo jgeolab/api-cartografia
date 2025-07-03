@@ -1,0 +1,73 @@
+openapi: 3.0.0
+paths:
+  /colonias/por-id:
+    get:
+      operationId: ColoniasController_getByIds
+      parameters:
+        - name: cve_ent
+          required: true
+          in: query
+          schema:
+            example: 108
+            type: number
+        - name: cve_mun
+          required: true
+          in: query
+          schema:
+            example: 13002
+            type: number
+        - name: cve_loc
+          required: true
+          in: query
+          schema:
+            example: 216
+            type: number
+      responses:
+        "200":
+          description: ""
+      tags: &a1
+        - Catálogos Cartografía
+  /colonias/por-coordenadas:
+    get:
+      operationId: ColoniasController_getByCoords
+      parameters:
+        - name: lat
+          required: true
+          in: query
+          schema:
+            example: 21.880449
+            type: number
+        - name: lng
+          required: true
+          in: query
+          schema:
+            example: -102.296179
+            type: number
+        - name: radio
+          required: false
+          in: query
+          description: Radio de búsqueda en metros
+          schema:
+            example: 1000
+            type: number
+      responses:
+        "200":
+          description: ""
+      tags: *a1
+info:
+  title: API Geoespaciales
+  description: Conjunto de APIs con datos de cartografía, socioeconómicos, y más.
+  version: "1.0"
+  contact: {}
+tags:
+  - name: Catálogos Cartografía
+    description: ""
+  - name: Indicadores Socioeconómicos
+    description: ""
+  - name: Comercio
+    description: ""
+  - name: Vivienda
+    description: ""
+servers: []
+components:
+  schemas: {}
