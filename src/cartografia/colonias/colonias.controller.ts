@@ -1,3 +1,4 @@
+// src/maps/colonias/colonias.controller.ts
 import {
   Controller,
   Get,
@@ -5,21 +6,37 @@ import {
   Res,
   HttpStatus,
   Headers,
+  Logger,
 } from '@nestjs/common';
 import { ColoniasService } from './colonias.service';
 import { ColoniasKeysDto } from './dto/colonias-keys.dto';
 import { ColoniaCoordenadasDto } from './dto/colonia-coordenadas.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
-@ApiTags('Catálogos Cartografía')
-@Controller('colonias')
+@ApiTags('Cartografía') // Etiqueta actualizada
+@Controller({ path: 'colonias', version: '1' }) // Versionado y ruta base
 export class ColoniasController {
+  private readonly logger = new Logger(ColoniasController.name);
   constructor(private readonly coloniasService: ColoniasService) {}
 
-  // El método getByIds seguiría una estructura similar...
   @Get('por-id')
+  @ApiOperation({
+    summary: 'Obtiene una o más colonias por sus claves geoestadísticas.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Búsqueda exitosa. Devuelve un arreglo de localidades.',
+  })
+  @ApiResponse({
+    status: 204,
+    description: 'Búsqueda exitosa pero sin resultados.',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Parámetros de consulta inválidos.',
+  })
   async getByIds(
     @Query() params: ColoniasKeysDto,
     @Res() res: Response,
@@ -32,7 +49,12 @@ export class ColoniasController {
         params.cve_mun,
         params.cve_loc,
       );
+      // Si no hay resultados, devolvemos 204 No Content
+      if (!colonias || colonias.length === 0) {
+        return res.status(HttpStatus.NO_CONTENT).send();
+      }
 
+      // Si hay resultados, devolvemos 200 OK con el payload
       return res.status(HttpStatus.OK).json({
         status: 'success',
         folio: folio,
@@ -41,7 +63,17 @@ export class ColoniasController {
         data: colonias,
       });
     } catch (error) {
-      // En un caso real, aquí podrías loggear el 'error'
+      if (error instanceof Error) {
+        this.logger.error(
+          `[Folio: ${folio}] Fallo en getByIds con params: ${JSON.stringify(params)}`,
+          error.stack,
+        );
+      } else {
+        this.logger.error(
+          `[Folio: ${folio}] Fallo en getByIds con params: ${JSON.stringify(params)} - Se lanzó un error de tipo no estándar`,
+          error,
+        );
+      }
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         status: 'error',
         folio: folio,
@@ -55,7 +87,22 @@ export class ColoniasController {
   }
 
   @Get('por-coordenadas')
-  // Usamos el decorador @Res() para tener control total sobre la respuesta.
+  @ApiOperation({
+    summary: 'Busca colonias dentro de un radio a partir de coordenadas.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Búsqueda exitosa. Devuelve un arreglo de colonias.',
+  })
+  @ApiResponse({
+    status: 204,
+    description: 'Búsqueda exitosa pero sin resultados.',
+  })
+  @ApiResponse({
+    status: 400,
+    description:
+      'Parámetros de consulta inválidos (ej. lat/lng fuera de rango).',
+  })
   async getByCoords(
     @Query() params: ColoniaCoordenadasDto,
     @Res() res: Response,
@@ -69,7 +116,10 @@ export class ColoniasController {
         params.radio ?? 1000,
       );
 
-      // Construimos el objeto de respuesta exitosa
+      if (!colonias || colonias.length === 0) {
+        return res.status(HttpStatus.NO_CONTENT).send();
+      }
+
       return res.status(HttpStatus.OK).json({
         status: 'success',
         folio: folio,
@@ -78,8 +128,17 @@ export class ColoniasController {
         data: colonias,
       });
     } catch (error) {
-      // En un caso real, aquí podrías loggear el 'error'
-      // Construimos el objeto de respuesta de error
+      if (error instanceof Error) {
+        this.logger.error(
+          `[Folio: ${folio}] Fallo en getByIds con params: ${JSON.stringify(params)}`,
+          error.stack,
+        );
+      } else {
+        this.logger.error(
+          `[Folio: ${folio}] Fallo en getByIds con params: ${JSON.stringify(params)} - Se lanzó un error de tipo no estándar`,
+          error,
+        );
+      }
       return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         status: 'error',
         folio: folio,
