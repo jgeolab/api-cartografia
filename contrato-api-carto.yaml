@@ -1,36 +1,83 @@
 openapi: 3.0.0
 paths:
-  /colonias/por-id:
+  /v1/colonias/por-id:
     get:
-      operationId: ColoniasController_getByIds
+      operationId: ColoniasController_getByIds_v1
       parameters:
+        - name: page
+          required: false
+          in: query
+          description: Número de página que se desea obtener
+          schema:
+            minimum: 1
+            default: 1
+            type: number
+        - name: limit
+          required: false
+          in: query
+          description: Número de resultados por página
+          schema:
+            minimum: 1
+            maximum: 100
+            default: 10
+            type: number
         - name: cve_ent
           required: true
           in: query
+          description: Clave de la entidad federativa (2 dígitos)
           schema:
-            example: 108
-            type: number
+            example: "01"
+            type: string
         - name: cve_mun
           required: true
           in: query
+          description: Clave del municipio (3 dígitos)
           schema:
-            example: 13002
-            type: number
+            example: "002"
+            type: string
         - name: cve_loc
           required: true
           in: query
+          description: Clave de la localidad (4 dígitos)
           schema:
-            example: 216
-            type: number
+            example: "0001"
+            type: string
+        - name: x-cloud-trace-context
+          required: true
+          in: header
+          schema:
+            type: string
       responses:
         "200":
-          description: ""
+          description: Búsqueda exitosa. Devuelve un arreglo de localidades.
+        "204":
+          description: Búsqueda exitosa pero sin resultados.
+        "400":
+          description: Parámetros de consulta inválidos.
+      summary: Obtiene una o más colonias por sus claves geoestadísticas.
       tags: &a1
-        - Catálogos Cartografía
-  /colonias/por-coordenadas:
+        - Cartografía
+  /v1/colonias/por-coordenadas:
     get:
-      operationId: ColoniasController_getByCoords
+      operationId: ColoniasController_getByCoords_v1
       parameters:
+        - name: page
+          required: false
+          in: query
+          description: Número de página que se desea obtener
+          schema:
+            minimum: 1
+            default: 1
+            type: number
+        - name: limit
+          required: false
+          in: query
+          description: Número de resultados por página
+          schema:
+            minimum: 1
+            maximum: 100
+            default: 10
+            type: number
         - name: lat
           required: true
           in: query
@@ -48,11 +95,22 @@ paths:
           in: query
           description: Radio de búsqueda en metros
           schema:
+            default: 1000
             example: 1000
             type: number
+        - name: x-cloud-trace-context
+          required: true
+          in: header
+          schema:
+            type: string
       responses:
         "200":
-          description: ""
+          description: Búsqueda exitosa. Devuelve un arreglo de colonias.
+        "204":
+          description: Búsqueda exitosa pero sin resultados.
+        "400":
+          description: Parámetros de consulta inválidos (ej. lat/lng fuera de rango).
+      summary: Busca colonias dentro de un radio a partir de coordenadas.
       tags: *a1
 info:
   title: API Geoespaciales
@@ -60,9 +118,9 @@ info:
   version: "1.0"
   contact: {}
 tags:
-  - name: Catálogos Cartografía
+  - name: Cartografía
     description: ""
-  - name: Indicadores Socioeconómicos
+  - name: Indicadores Demográficos
     description: ""
   - name: Comercio
     description: ""
