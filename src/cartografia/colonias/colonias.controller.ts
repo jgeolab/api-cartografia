@@ -15,7 +15,7 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 
-@ApiTags('Cartografía') // Etiqueta actualizada
+@ApiTags('Cartografía')
 @Controller({ path: 'colonias', version: '1' }) // Versionado y ruta base
 export class ColoniasController {
   private readonly logger = new Logger(ColoniasController.name);
@@ -44,23 +44,19 @@ export class ColoniasController {
   ) {
     const folio = traceId ? traceId.split('/')[0] : uuidv4();
     try {
-      const colonias = await this.coloniasService.getByKeys(
-        params.cve_ent,
-        params.cve_mun,
-        params.cve_loc,
-      );
-      // Si no hay resultados, devolvemos 204 No Content
-      if (!colonias || colonias.length === 0) {
+      // Pasamos el objeto de parámetros completo al servicio
+      const result = await this.coloniasService.getByKeys(params);
+
+      if (!result.data || result.data.length === 0) {
         return res.status(HttpStatus.NO_CONTENT).send();
       }
 
-      // Si hay resultados, devolvemos 200 OK con el payload
       return res.status(HttpStatus.OK).json({
         status: 'success',
-        folio: folio,
+        folio,
         timestamp: new Date().toISOString(),
-        itemCount: colonias.length,
-        data: colonias,
+        pagination: result.pagination, // <-- Añadido
+        data: result.data,
       });
     } catch (error) {
       if (error instanceof Error) {
@@ -110,22 +106,18 @@ export class ColoniasController {
   ) {
     const folio = traceId ? traceId.split('/')[0] : uuidv4();
     try {
-      const colonias = await this.coloniasService.getByLocation(
-        params.lat,
-        params.lng,
-        params.radio ?? 1000,
-      );
-
-      if (!colonias || colonias.length === 0) {
+      const result = await this.coloniasService.getByLocation(params);
+      if (!result.data || result.data.length === 0) {
         return res.status(HttpStatus.NO_CONTENT).send();
       }
 
+      // 3. Devolver la estructura de respuesta paginada.
       return res.status(HttpStatus.OK).json({
         status: 'success',
         folio: folio,
         timestamp: new Date().toISOString(),
-        itemCount: colonias.length,
-        data: colonias,
+        pagination: result.pagination, // Añadir el objeto de paginación
+        data: result.data,
       });
     } catch (error) {
       if (error instanceof Error) {

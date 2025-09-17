@@ -26,7 +26,7 @@ async function bootstrap() {
   setupSwagger(app);
   await app.listen(3000);
   console.log(`🚀 Servidor corriendo en http://localhost:3000`);
-  console.log(`📄 Documentación en http://localhost:3000/api`);
+  console.log(`📄 Documentación en http://localhost:3000/api/documentation`);
 }
 
 bootstrap();

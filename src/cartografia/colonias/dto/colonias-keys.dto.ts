@@ -1,8 +1,9 @@
 // src/maps/colonias/dto/colonias-keys.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, Length, IsNumberString } from 'class-validator';
+import { PaginationQueryDto } from '../../../common/dto/pagination-query.dto';
 
-export class ColoniasKeysDto {
+export class ColoniasKeysDto extends PaginationQueryDto {
   @ApiProperty({
     example: '01',
     description: 'Clave de la entidad federativa (2 dígitos)',
