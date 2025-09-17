@@ -8,17 +8,17 @@ export class ColoniasService {
   constructor(private cloudsql: CloudsqlService) {}
 
   async getByKeys(
-    coledo: number,
-    colcp: number,
-    colficonsec: number,
+    cve_ent: string,
+    cve_mun: string,
+    cve_loc: string,
   ): Promise<ColoniasKeysDto[]> {
     const sql = this.cloudsql.getClient();
     const result = await sql<ColoniasKeysDto[]>`
         SELECT cvegeo, cve_ent, cve_mun, cve_ageb
         FROM public.ags_a_4326
-        WHERE cve_ent = ${coledo}
-          AND cve_mun = ${colcp}
-          AND cve_loc = ${colficonsec};
+        WHERE cve_ent = ${cve_ent}
+          AND cve_mun = ${cve_mun}
+          AND cve_loc = ${cve_loc};
     `;
     return result;
   }
